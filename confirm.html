@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Confirmation Page</title>
+  <script>
+    function generateOTP() {
+  var otp = Math.floor(1000 + Math.random() * 9000);
+  return otp.toString();
+}
+var otp = generateOTP();
+console.log(otp);
+
+    function validateOTP() {
+      var userInput = document.getElementById("otp").value;
+      var randomOTP = document.getElementById("randomOTP").value;
+      randomOTP=otp;
+      if (userInput === randomOTP) {
+        document.getElementById("validationForm").style.display = "none";
+        document.getElementById("validationSuccess").style.display = "block";
+        setTimeout(function() {
+          window.location.href = "https://www.pixel6.co";
+        }, 3000);
+      } else {
+        var attemptsLeft = document.getElementById("attemptsLeft").innerHTML;
+        attemptsLeft--;
+        if (attemptsLeft === 0) {
+          document.getElementById("validationForm").style.display = "none";
+          document.getElementById("validationFailed").style.display = "block";
+          setTimeout(function() {
+            window.location.href = "https://www.pixel6.co/404";
+          }, 3000);
+        } else {
+          document.getElementById("attemptsLeft").innerHTML = attemptsLeft;
+          document.getElementById("otp").value = "";
+        }
+      }
+    }
+  </script>
+</head>
+<body>
+  <h1>Confirmation Page</h1>
+  <p>
+    Dear <span id="firstName"></span>,
+    Thank you for your inquiry. A 4-digit verification number has been sent to your email: <span id="userEmail"></span>,
+    please enter it in the following box and submit for confirmation:
+  </p>
+
+  <form id="validationForm" onsubmit="event.preventDefault(); validateOTP();">
+    <input type="text" id="otp" placeholder="Enter OTP" required>
+    <input type="hidden" id="randomOTP" value="1234">
+    <input type="submit" value="Validate">
+    <p>Attempts Left: <span id="attemptsLeft">3</span></p>
+  </form>
+
+  <div id="validationSuccess" style="display: none;">
+    <p>Validation Successful!</p>
+  </div>
+
+  <div id="validationFailed" style="display: none;">
+    <p>Validation Failed!</p>
+  </div>
+
+  <script>
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const fullName = urlParams.get('fullName');
+    const email = urlParams.get('email');
+
+
+    const firstName = fullName.split(" ")[0];
+
+
+    document.getElementById("firstName").innerHTML = firstName;
+    document.getElementById("userEmail").innerHTML = email;
+  </script>
+</body>
+</html>

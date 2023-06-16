@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Loan Page</title>
+  <style>
+    .error {
+      color: red;
+    }
+  </style>
+  <script>
+    function validateForm() {
+      var fullName = document.forms["loanForm"]["fullName"].value;
+      var email = document.forms["loanForm"]["email"].value;
+      var pan = document.forms["loanForm"]["pan"].value;
+      var loanAmount = document.forms["loanForm"]["loanAmount"].value;
+
+      //expressions for validation
+      var nameRegex = /^[A-Za-z]{3,} [A-Za-z]{3,}$/;
+      var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      var panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+      var amountRegex = /^[0-9]{1,9}$/;
+
+      // Validation checking
+      if (!nameRegex.test(fullName)) {
+        document.getElementById("fullNameError").innerHTML = "Invalid full name";
+        return false;
+      }
+      if (!emailRegex.test(email)) {
+        document.getElementById("emailError").innerHTML = "Invalid email address";
+        return false;
+      }
+      if (!panRegex.test(pan)) {
+        document.getElementById("panError").innerHTML = "Invalid PAN number";
+        return false;
+      }
+      if (!amountRegex.test(loanAmount)) {
+        document.getElementById("loanAmountError").innerHTML = "Invalid loan amount";
+        return false;
+      }
+
+      // Converting loan amount to words
+      var amountInWords = convertToWords(parseInt(loanAmount));
+      document.getElementById("amountInWords").placeholder = amountInWords;
+
+      // Passing parameters to confirmation page
+      var confirmationPageURL = "confirm.html?fullName=" + encodeURIComponent(fullName) + "&email=" + encodeURIComponent(email);
+      document.forms["loanForm"].action = confirmationPageURL;
+
+      return true;
+    }
+
+    function convertToWords(amount) {
+        const singleDigits = [
+        "", "One", "Two", "Three", "Four", "Five",
+        "Six", "Seven", "Eight", "Nine"
+      ];
+
+      const tens = [
+        "", "", "Twenty", "Thirty", "Forty", "Fifty",
+        "Sixty", "Seventy", "Eighty", "Ninety"
+      ];
+
+      const teens = [
+        "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen",
+        "Sixteen", "Seventeen", "Eighteen", "Nineteen"
+      ];
+
+      const scale = ["", "Thousand", "Lakh", "Crore"];
+
+      if (amount === 0) {
+        return "Zero";
+      }
+
+      let words = "";
+      let scaleIndex = 0;
+
+      while (amount > 0) {
+        let chunk = amount % 1000;
+
+        if (chunk !== 0) {
+          let chunkWords = "";
+
+          // Convert hundreds place
+          let hundreds = Math.floor(chunk / 100);
+          if (hundreds !== 0) {
+            chunkWords += singleDigits[hundreds] + " Hundred ";
+          }
+
+          // Convert tens and ones place
+          let tensAndOnes = chunk % 100;
+          if (tensAndOnes >= 10 && tensAndOnes <= 19) {
+            chunkWords += teens[tensAndOnes - 10] + " ";
+          } else {
+            let tensDigit = Math.floor(tensAndOnes / 10);
+            if (tensDigit !== 0) {
+              chunkWords += tens[tensDigit] + " ";
+            }
+
+            let onesDigit = tensAndOnes % 10;
+            if (onesDigit !== 0) {
+              chunkWords += singleDigits[onesDigit] + " ";
+            }
+          }
+
+          words = chunkWords + scale[scaleIndex] + " " + words;
+        }
+
+        scaleIndex++;
+        amount = Math.floor(amount / 1000);
+      }
+
+      return words.trim();
+    }
+  </script>
+</head>
+<body>
+  <h1>Loan Application</h1>
+  <form name="loanForm" onsubmit="return validateForm()" method="post" action="">
+    <label for="fullName">Full Name:</label>
+    <input type="text" id="fullName" name="fullName" required>
+    <span id="fullNameError" class="error"></span><br><br>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+    <span id="emailError" class="error"></span><br><br>
+
+    <label for="pan">PAN:</label>
+    <input type="text" id="pan" name="pan" required>
+    <span id="panError" class="error"></span><br><br>
+
+    <label for="loanAmount">Loan Amount:</label>
+    <input type="number" id="loanAmount" name="loanAmount" required oninput="convertAndDisplayAmountInWords()">
+    <span id="loanAmountError" class="error"></span><br><br>
+
+    <p>Amount in Words: <input type="text" id="amountInWords" placeholder="Amount in words" disabled></p>
+
+    <input type="submit" value="submit">
+  </form>
+
+  <script>
+    function convertAndDisplayAmountInWords() {
+      var loanAmount = document.forms["loanForm"]["loanAmount"].value;
+      var amountInWords = convertToWords(parseInt(loanAmount));
+      document.getElementById("amountInWords").value = amountInWords;
+    }
+  </script>
+</body>
+</html>
